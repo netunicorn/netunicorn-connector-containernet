@@ -1,10 +1,10 @@
 [project]
-name = "netunicorn-connector-connectorname"
+name = "netunicorn-connector-containernet"
 version = "0.0.1"
 authors = [
-    {name = "author name", email = "email"},
+    {name = "Roman Beltiukov", email = "rbeltiukov@ucsb.edu"},
 ]
-description = "connector for netunicorn"
+description = "ContainerNet connector for netunicorn"
 readme = "README.md"
 requires-python = ">=3.10"
 keywords = ["netunicorn"]
@@ -13,7 +13,9 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 dependencies = [
-    "netunicorn-base >= 0.3.0",
+    "netunicorn-base >= 0.3.3",
+    "pyyaml",
+    "docker",
 ]
 
 [tool.setuptools.packages.find]
