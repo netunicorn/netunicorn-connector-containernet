@@ -53,11 +53,19 @@ class ContainernetConnector(NetunicornConnectorProtocol):
         self.configuration = configuration
 
         # initialize is guaranteed to be called before any other method or we raise exceptions anyway
-        self.base_url: str
-        self.default_network = None
-        self.working_folder = "/tmp"
         self.client: docker.DockerClient
         self.architecture: Architecture
+
+        if self.configuration is None:
+            self.base_url = 'unix://var/run/docker.sock'
+            self.default_network = None
+            self.working_folder = "/tmp"
+        else:
+            with open(self.configuration, 'r') as f:
+                config = yaml.safe_load(f)
+            self.base_url = config['netunicorn.containernet.docker.base_url']
+            self.default_network = config.get('netunicorn.containernet.docker.default_network', None)
+            self.working_folder = config.get('netunicorn.containernet.working_folder', "/tmp")
 
         self.netunicorn_gateway = netunicorn_gateway
         self.logger = logger or logging.getLogger(__name__)
@@ -65,17 +73,16 @@ class ContainernetConnector(NetunicornConnectorProtocol):
         self.experiment_containers: dict[str, list[str]] = {}  # optional (to still be stateless) to help stopping containers
 
     async def initialize(self, *args: Any, **kwargs: Any) -> None:
-        if self.configuration is None:
-            self.base_url = 'unix://var/run/docker.sock'
-            self.default_network = None
-        else:
-            with open(self.configuration, 'r') as f:
-                config = yaml.safe_load(f)
-            self.base_url = config['netunicorn.containernet.docker.base_url']
-            self.default_network = config.get('netunicorn.containernet.docker.default_network', None)
-            self.working_folder = config.get('netunicorn.containernet.working_folder', "/tmp")
-            if not os.path.exists(self.working_folder):
-                os.makedirs(self.working_folder)
+
+        if 'base_url' in kwargs:
+            self.base_url = kwargs['base_url']
+        if 'default_network' in kwargs:
+            self.default_network = kwargs['default_network']
+        if 'working_folder' in kwargs:
+            self.working_folder = kwargs['working_folder']
+
+        if not os.path.exists(self.working_folder):
+            os.makedirs(self.working_folder)
 
         self.client = docker.DockerClient(base_url=self.base_url)
         version = self.client.version()

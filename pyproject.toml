@@ -18,6 +18,12 @@ dependencies = [
     "docker",
 ]
 
+[project.optional-dependencies]
+rest = [
+  'fastapi',
+  'uvicorn',
+]
+
 [tool.setuptools.packages.find]
 where = ["src"]
 
