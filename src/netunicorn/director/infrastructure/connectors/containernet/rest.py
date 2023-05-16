@@ -52,6 +52,12 @@ connector = ContainernetConnector(
 )
 
 
+@app.exception_handler(HTTPException)
+async def validation_exception_handler(request, exc):
+    connector.logger.exception(exc)
+    return Response(media_type="application/json", content=str(exc), status_code=exc.status_code)
+
+
 class HealthResponse(BaseModel):
     status: str
 
