@@ -68,7 +68,10 @@ class ContainernetConnector(NetunicornConnectorProtocol):
             self.working_folder = config.get('netunicorn.containernet.working_folder', "/tmp")
 
         self.netunicorn_gateway = netunicorn_gateway
-        self.logger = logger or logging.getLogger(__name__)
+        self.logger = logger
+        if logger is None:
+            logging.basicConfig(level=logging.DEBUG)
+            self.logger = logging.getLogger(__name__)
 
         self.experiment_containers: dict[str, list[str]] = {}  # optional (to still be stateless) to help stopping containers
 
