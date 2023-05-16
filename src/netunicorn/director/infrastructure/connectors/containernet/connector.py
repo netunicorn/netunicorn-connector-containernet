@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import os
@@ -68,25 +69,16 @@ class ContainernetConnector(NetunicornConnectorProtocol):
             self.working_folder = config.get('netunicorn.containernet.working_folder', "/tmp")
 
         self.netunicorn_gateway = netunicorn_gateway
+
         self.logger = logger
         if logger is None:
             logging.basicConfig(level=logging.DEBUG)
             self.logger = logging.getLogger(__name__)
 
+        self._init_client()
         self.experiment_containers: dict[str, list[str]] = {}  # optional (to still be stateless) to help stopping containers
 
-    async def initialize(self, *args: Any, **kwargs: Any) -> None:
-
-        if 'base_url' in kwargs:
-            self.base_url = kwargs['base_url']
-        if 'default_network' in kwargs:
-            self.default_network = kwargs['default_network']
-        if 'working_folder' in kwargs:
-            self.working_folder = kwargs['working_folder']
-
-        if not os.path.exists(self.working_folder):
-            os.makedirs(self.working_folder)
-
+    def _init_client(self):
         self.client = docker.DockerClient(base_url=self.base_url)
         version = self.client.version()
         assert version['Os'] == 'linux'
@@ -97,6 +89,23 @@ class ContainernetConnector(NetunicornConnectorProtocol):
             self.architecture = Architecture.LINUX_ARM64
         else:
             self.logger.warning(f"Unknown architecture: {version['Arch']}")
+
+
+    async def initialize(self, *args: Any, **kwargs: Any) -> None:
+        if 'base_url' in kwargs:
+            self.base_url = kwargs['base_url']
+        if 'default_network' in kwargs:
+            self.default_network = kwargs['default_network']
+        if 'working_folder' in kwargs:
+            self.working_folder = kwargs['working_folder']
+        if 'netunicorn_gateway' in kwargs:
+            self.netunicorn_gateway = kwargs['netunicorn_gateway']
+        if not self.netunicorn_gateway:
+            raise ValueError("netunicorn_gateway must be set during either __init__ or initialize")
+
+        self._init_client()
+        if not os.path.exists(self.working_folder):
+            os.makedirs(self.working_folder)
 
         self.logger.info("Initialized Containernet connector")
 

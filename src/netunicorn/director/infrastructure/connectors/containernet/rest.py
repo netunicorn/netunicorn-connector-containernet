@@ -7,7 +7,7 @@ from fastapi import FastAPI, Header, HTTPException, Request, Depends, status, Re
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from netunicorn.base.deployment import Deployment
-from netunicorn.base.types import DeploymentRepresentation, NodeRepresentation
+from netunicorn.base.types import NodeRepresentation
 from netunicorn.base.utils import UnicornEncoder
 from pydantic import BaseModel
 
@@ -126,7 +126,7 @@ async def get_nodes(
 async def deploy(
         username: str,
         experiment_id: str,
-        deployments_data: List[DeploymentRepresentation],
+        deployments_data: List[Dict],
         netunicorn_auth_context: OperationContext = Header(default=None),
         netunicorn_deployment_context: OperationContext = Header(default=None),
 ) -> Dict[str, ResultData]:
@@ -150,7 +150,7 @@ async def deploy(
 async def execute(
         username: str,
         experiment_id: str,
-        deployments_data: List[DeploymentRepresentation],
+        deployments_data: List[Dict],
         netunicorn_auth_context: OperationContext = Header(default=None),
         netunicorn_execution_context: OperationContext = Header(default=None),
 ) -> Dict[str, ResultData]:
@@ -192,7 +192,7 @@ async def stop_executors(
 @app.post("/cleanup/{experiment_id}", status_code=200)
 async def cleanup(
         experiment_id: str,
-        deployments_data: List[DeploymentRepresentation],
+        deployments_data: List[Dict],
 ) -> None:
     deployments = [Deployment.from_json(x) for x in deployments_data]
     await connector.cleanup(experiment_id, deployments)
