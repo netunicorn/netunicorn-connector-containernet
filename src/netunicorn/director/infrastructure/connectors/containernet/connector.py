@@ -58,14 +58,12 @@ class ContainernetConnector(NetunicornConnectorProtocol):
         self.architecture: Architecture
 
         if self.configuration is None:
-            self.base_url = 'unix://var/run/docker.sock'
-            self.default_network = None
+            self.docker_endpoint = 'unix://var/run/docker.sock'
             self.working_folder = "/tmp"
         else:
             with open(self.configuration, 'r') as f:
                 config = yaml.safe_load(f)
-            self.base_url = config['netunicorn.containernet.docker.base_url']
-            self.default_network = config.get('netunicorn.containernet.docker.default_network', None)
+            self.docker_endpoint = config['netunicorn.containernet.docker.docker_endpoint']
             self.working_folder = config.get('netunicorn.containernet.working_folder', "/tmp")
 
         self.netunicorn_gateway = netunicorn_gateway
@@ -79,7 +77,7 @@ class ContainernetConnector(NetunicornConnectorProtocol):
         self.experiment_containers: dict[str, list[str]] = {}  # optional (to still be stateless) to help stopping containers
 
     def _init_client(self):
-        self.client = docker.DockerClient(base_url=self.base_url)
+        self.client = docker.DockerClient(base_url=self.docker_endpoint)
         version = self.client.version()
         assert version['Os'] == 'linux'
         self.architecture = Architecture.UNKNOWN
@@ -92,10 +90,8 @@ class ContainernetConnector(NetunicornConnectorProtocol):
 
 
     async def initialize(self, *args: Any, **kwargs: Any) -> None:
-        if 'base_url' in kwargs:
-            self.base_url = kwargs['base_url']
-        if 'default_network' in kwargs:
-            self.default_network = kwargs['default_network']
+        if 'docker_endpoint' in kwargs:
+            self.docker_endpoint = kwargs['docker_endpoint']
         if 'working_folder' in kwargs:
             self.working_folder = kwargs['working_folder']
         if 'netunicorn_gateway' in kwargs:
