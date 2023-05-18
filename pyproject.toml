@@ -16,12 +16,8 @@ dependencies = [
     "netunicorn-base >= 0.3.3",
     "pyyaml",
     "docker",
-]
-
-[project.optional-dependencies]
-rest = [
-  'fastapi',
-  'uvicorn',
+    "fastapi",
+    "uvicorn",
 ]
 
 [tool.setuptools.packages.find]
