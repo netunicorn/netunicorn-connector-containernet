@@ -5,17 +5,17 @@ This is a netunicorn connector to a Containernet virtual infrastructure.
 If your netunicorn installation has enabled Containernet connector, you can use it to create virtual infrastructure
 with Containernet. 
 
-You would have an UncountableNodePool project, which (with `__next__` or `take` methods) generates virtual nodes.
+You would have an UncountableNodePool object, which (with `__next__` or `take` methods) generates virtual nodes.
 You can assign your containers to these virtual nodes and netunicorn will create them in Containernet. You can safely
 rename the nodes if needed, the provided name would be used by Containernet.
 
 `WARNING`: the node name should be a valid Python identifier, as you can use it later in your network code to refer to the node.
-If the node is node a valid Python identifier, the deployment would fail.
+If the node is not a valid Python identifier, the deployment would fail.
 
 ### Network configuration
 During deployment, user can provide an arbitrary network configuration using the Containernet syntax:
 1. The network configuration string should be provided in the 'network_definition' field of the deployment_context argument of `deploy` method.
-2. The network configuration string should represent a JSON-serialized List of strings, where each string is a valid Python line of code for Containernet network configuration.
+2. The network configuration string should represent a JSON-serialized list of strings, where each string is a valid Python line of code for Containernet network configuration.
 3. You can refer to your node names in network configuration.
 4. You can safely assume, that in the local context of this Python code there exist a Containernet instance with a single controller called `net`.
 5. You do not need to start the net execution
