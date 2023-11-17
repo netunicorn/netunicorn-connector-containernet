@@ -3,11 +3,11 @@
 name: Release
 
 on:
-## uncomment this when you are ready to publish to PyPI
-#  push:
-#    paths:
-#      - "pyproject.toml"
-#    branches: ["main"]
+# uncomment this when you are ready to publish to PyPI
+  push:
+    paths:
+      - "pyproject.toml"
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Check if local version newer than PyPI version
         id: check-pypi-version
-        uses: maybe-hello-world/pyproject-check-version@v3
+        uses: maybe-hello-world/pyproject-check-version@v4
 
   deploy:
     runs-on: ubuntu-latest
